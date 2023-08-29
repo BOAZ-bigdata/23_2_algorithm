@@ -1,33 +1,44 @@
-#백준 11657
+#백준 1738
 
 import sys
 input = sys.stdin.readline
 
-INF = int(1e9) #무한 설정
+n, m = map(int, input().split())
+graph = []
+
+for i in range(m):
+    u, v, w = map(int, input().split())
+    graph.append((u, v, w))
 
 #벨만포드
-def bellman_ford(n, m, edges):
-    distance = [INF] * (n + 1)
-    distance[1] = 0
+def belman_ford(graph, start, n):
+    INF = int(1e9)
+    distance = [INF] * (n+1)
+    distance[start] = 0
 
-    for _ in range(n - 1):
-        for a, b, c in edges:
-            if distance[a] != INF and distance[b] > distance[a] + c:
-                distance[b] = distance[a] + c
+    for i in range(n-1):
+        for u,v,w in graph:
+            if distance[u] != INF and distance[u] + w < distance[v]:
+                distance[v] = distance[u] + w
 
-    for a, b, c in edges:
-        if distance[a] != INF and distance[b] > distance[a] + c:
-            return [-1]
+    for u, v, w in graph:
+        if distance[u] != INF and distance[u] + w < distance[v]:
+            return None  #음수
 
-    return distance[2:]
+    return distance
 
-n, m = map(int, input().split())
-edges = []
-for _ in range(m):
-    a, b, c = map(int, input().split())
-    edges.append((a, b, c))
+result = belman_ford(graph, 1, n)
 
-result = bellman_ford(n, m, edges)
-for distance in result:
-    print(distance if distance != INF else -1)
-
+if result is None:
+    print(-1)
+else:
+    tmp = [n]
+    current = n
+    while current != 1:
+        for u,v,w in graph:
+            if result[current] == result[v]+w:
+                tmp.append(v)
+                current = v
+                break
+    tmp.reverse()
+    print("".join(map(str, tmp)))
